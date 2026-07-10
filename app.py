@@ -296,7 +296,3 @@ if st.sidebar.button("🗑️ Vaciar Pedido"):
         del st.session_state[clave]
 
     st.rerun()
-                f"cant_{producto['nombre']}"
-            ] = 0
-
-    st.rerun()
