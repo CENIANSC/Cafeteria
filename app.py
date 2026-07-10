@@ -1,23 +1,119 @@
+import streamlit as st
+from fpdf import FPDF
+from datetime import datetime
+
+st.set_page_config(
+    page_title="Tótem Restaurante",
+    page_icon="🍽️",
+    layout="wide"
+)
+
+st.title("🍽️ Tótem de Autoservicio")
+
+# ======================================
+# MENÚ
+# ======================================
+
+menu = {
+    "🥪 Tortas": [
+        {"nombre": "Torta Cubana", "precio": 95},
+        {"nombre": "Torta Jamón", "precio": 65},
+        {"nombre": "Torta Hawaiana", "precio": 85},
+        {"nombre": "Torta Especial", "precio": 110},
+        {"nombre": "Torta Milanesa", "precio": 95},
+        {"nombre": "Torta Pastor", "precio": 90},
+    ],
+
+    "🫓 Quesadillas": [
+        {"nombre": "Quesadilla Queso", "precio": 35},
+        {"nombre": "Quesadilla Chorizo", "precio": 45},
+        {"nombre": "Quesadilla Champiñones", "precio": 40},
+        {"nombre": "Quesadilla Mixta", "precio": 55},
+        {"nombre": "Quesadilla Pastor", "precio": 50},
+    ],
+
+    "🥤 Bebidas": [
+        {"nombre": "Coca Cola", "precio": 25},
+        {"nombre": "Agua Natural", "precio": 18},
+        {"nombre": "Agua Mineral", "precio": 22},
+        {"nombre": "Jugo", "precio": 30},
+        {"nombre": "Café", "precio": 28},
+    ],
+
+    "⭐ Especiales": [
+        {"nombre": "Combo Familiar", "precio": 280},
+        {"nombre": "Paquete Ejecutivo", "precio": 145},
+        {"nombre": "Promoción del Día", "precio": 120},
+    ]
+}
+
+# ======================================
+# INTERFAZ POR PESTAÑAS
+# ======================================
+
+tabs = st.tabs(list(menu.keys()))
+
+for tab, (categoria, productos) in zip(tabs, menu.items()):
+
+    with tab:
+
+        for fila in range(0, len(productos), 3):
+
+            cols = st.columns(3)
+
+            for col_idx in range(3):
+
+                indice = fila + col_idx
+
+                if indice < len(productos):
+
+                    producto = productos[indice]
+
+                    with cols[col_idx]:
+
+                        st.markdown(
+                            f"""
+                            ### {producto['nombre']}
+                            **${producto['precio']}**
+                            """
+                        )
+
+                        st.number_input(
+                            "Cantidad",
+                            min_value=0,
+                            value=0,
+                            step=1,
+                            key=f"cant_{producto['nombre']}"
+                        )
+
+# ======================================
+# CARRITO AUTOMÁTICO
+# ======================================
+
+carrito = []
+
+for categoria, productos in menu.items():
+
+    for producto in productos:
+
+        cantidad = st.session_state.get(
+            f"cant_{producto['nombre']}",
+            0
+        )
+
+        if cantidad > 0:
+
+            carrito.append({
+                "producto": producto["nombre"],
+                "cantidad": cantidad,
+                "precio": producto["precio"]
+            })
+
 # ======================================
 # SIDEBAR
 # ======================================
 
 st.sidebar.title("🛒 Mi Pedido")
-
-# Botones en la parte superior
-col1, col2 = st.sidebar.columns(2)
-
-confirmar = col1.button(
-    "🧾 Confirmar Pedido",
-    use_container_width=True
-)
-
-vaciar = col2.button(
-    "🗑️ Vaciar Pedido",
-    use_container_width=True
-)
-
-st.sidebar.divider()
 
 total = 0
 
@@ -74,10 +170,10 @@ else:
     )
 
 # ======================================
-# CONFIRMAR PEDIDO
+# GENERAR COMANDA
 # ======================================
 
-if confirmar:
+if st.sidebar.button("🧾 Confirmar Pedido"):
 
     if len(carrito) == 0:
 
@@ -167,23 +263,18 @@ if confirmar:
 
         pdf_bytes = bytes(pdf.output())
 
-        st.sidebar.success(
-            "Pedido confirmado correctamente."
-        )
-
         st.sidebar.download_button(
             label="📄 Descargar Comanda",
             data=pdf_bytes,
             file_name=f"comanda_{fecha.strftime('%Y%m%d_%H%M%S')}.pdf",
-            mime="application/pdf",
-            use_container_width=True
+            mime="application/pdf"
         )
 
 # ======================================
-# VACIAR PEDIDO
+# LIMPIAR PEDIDO
 # ======================================
 
-if vaciar:
+if st.sidebar.button("🗑️ Vaciar Pedido"):
 
     for categoria, productos in menu.items():
 
