@@ -115,6 +115,21 @@ for categoria, productos in menu.items():
 
 st.sidebar.title("🛒 Mi Pedido")
 
+# Botones arriba
+col1, col2 = st.sidebar.columns(2)
+
+confirmar = col1.button(
+    "🧾 Confirmar",
+    use_container_width=True
+)
+
+vaciar = col2.button(
+    "🗑️ Vaciar",
+    use_container_width=True
+)
+
+st.sidebar.divider()
+
 total = 0
 
 if len(carrito) == 0:
@@ -132,37 +147,54 @@ else:
             f"### {item['cantidad']} x {item['producto']}"
         )
 
-        st.sidebar.write(f"${subtotal}")
-
-        st.sidebar.write("Personalización")
-
-        sin_chile = st.sidebar.checkbox(
-            "Sin chile",
-            key=f"sin_chile_{i}"
+        st.sidebar.write(
+            f"${subtotal}"
         )
 
-        sin_jitomate = st.sidebar.checkbox(
-            "Sin jitomate",
-            key=f"sin_jitomate_{i}"
-        )
 
-        extra_queso = st.sidebar.checkbox(
-            "Extra queso",
-            key=f"extra_queso_{i}"
-        )
+        # -------------------------------
+        # Personalización desplegable
+        # -------------------------------
 
-        item["observaciones"] = []
+        with st.sidebar.expander(
+            "⚙️ Personalización"
+        ):
 
-        if sin_chile:
-            item["observaciones"].append("Sin chile")
+            sin_chile = st.checkbox(
+                "Sin chile",
+                key=f"sin_chile_{i}"
+            )
 
-        if sin_jitomate:
-            item["observaciones"].append("Sin jitomate")
+            sin_jitomate = st.checkbox(
+                "Sin jitomate",
+                key=f"sin_jitomate_{i}"
+            )
 
-        if extra_queso:
-            item["observaciones"].append("Extra queso")
+            extra_queso = st.checkbox(
+                "Extra queso",
+                key=f"extra_queso_{i}"
+            )
+
+            item["observaciones"] = []
+
+            if sin_chile:
+                item["observaciones"].append(
+                    "Sin chile"
+                )
+
+            if sin_jitomate:
+                item["observaciones"].append(
+                    "Sin jitomate"
+                )
+
+            if extra_queso:
+                item["observaciones"].append(
+                    "Extra queso"
+                )
+
 
         st.sidebar.divider()
+
 
     st.sidebar.metric(
         "TOTAL",
@@ -173,7 +205,7 @@ else:
 # GENERAR COMANDA
 # ======================================
 
-if st.sidebar.button("🧾 Confirmar Pedido"):
+if confirmar:
 
     if len(carrito) == 0:
 
@@ -274,7 +306,7 @@ if st.sidebar.button("🧾 Confirmar Pedido"):
 # LIMPIAR PEDIDO
 # ======================================
 
-if st.sidebar.button("🗑️ Vaciar Pedido"):
+if vaciar:
 
     claves_eliminar = []
 
