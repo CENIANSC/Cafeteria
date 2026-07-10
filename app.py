@@ -8,7 +8,7 @@ st.set_page_config(
     layout="wide"
 )
 
-st.title("🍽️ Tótem de Autoservicio")
+st.title("🍽️ Cafetería UPPE")
 
 # ======================================
 # MENÚ
