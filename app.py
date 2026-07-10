@@ -44,7 +44,7 @@ menu = {
     ]
 }
 
-st.title("🍽️ Tótem de Autoservicio")
+st.title("🍽️ Cafetería UPPE")
 
 # -----------------------------
 # Pestañas
