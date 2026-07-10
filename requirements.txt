@@ -3,3 +3,4 @@ pandas
 fpdf
 supabase
 Pillow
+fpdf2
