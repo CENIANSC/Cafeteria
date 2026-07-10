@@ -19,28 +19,28 @@ if "carrito" not in st.session_state:
 # -----------------------------
 menu = {
     "🥪 Tortas": [
-        {"nombre": "Torta Cubana", "precio": 95},
-        {"nombre": "Torta Jamón", "precio": 65},
-        {"nombre": "Torta Hawaiana", "precio": 85},
-        {"nombre": "Torta Especial", "precio": 110}
+        {"nombre": "Torta Cubana", "precio": 60},
+        {"nombre": "Torta Jamón", "precio": 40},
+        {"nombre": "Torta Hawaiana", "precio": 60},
+        {"nombre": "Torta Milanesa", "precio": 50}
     ],
 
     "🫓 Quesadillas": [
-        {"nombre": "Quesadilla de Queso", "precio": 35},
-        {"nombre": "Quesadilla de Chorizo", "precio": 45},
-        {"nombre": "Quesadilla Mixta", "precio": 55}
+        {"nombre": "Quesadilla Dorada", "precio": 25},
+        {"nombre": "Quesadilla Comal", "precio": 25},
+        {"nombre": "Quesadilla Harina", "precio": 22}
     ],
 
     "🥤 Bebidas": [
-        {"nombre": "Coca Cola", "precio": 25},
-        {"nombre": "Agua Natural", "precio": 18},
-        {"nombre": "Agua Mineral", "precio": 22},
-        {"nombre": "Jugo", "precio": 30}
+        {"nombre": "Coca Cola", "precio": 24},
+        {"nombre": "Agua Natural", "precio": 15},
+        {"nombre": "Agua Mineral", "precio": 25},
+        {"nombre": "Jugo", "precio": 22}
     ],
 
     "⭐ Especiales": [
-        {"nombre": "Combo Familiar", "precio": 280},
-        {"nombre": "Paquete Ejecutivo", "precio": 145}
+        {"nombre": "Enchiladas suizas", "precio": 45},
+        {"nombre": "Chilaquiles con pollo", "precio": 55}
     ]
 }
 
