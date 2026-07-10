@@ -276,11 +276,26 @@ if st.sidebar.button("🧾 Confirmar Pedido"):
 
 if st.sidebar.button("🗑️ Vaciar Pedido"):
 
-    for categoria, productos in menu.items():
+    claves_eliminar = []
 
-        for producto in productos:
+    for clave in st.session_state.keys():
 
-            st.session_state[
+        if clave.startswith("cant_"):
+            claves_eliminar.append(clave)
+
+        if clave.startswith("sin_chile_"):
+            claves_eliminar.append(clave)
+
+        if clave.startswith("sin_jitomate_"):
+            claves_eliminar.append(clave)
+
+        if clave.startswith("extra_queso_"):
+            claves_eliminar.append(clave)
+
+    for clave in claves_eliminar:
+        del st.session_state[clave]
+
+    st.rerun()
                 f"cant_{producto['nombre']}"
             ] = 0
 
