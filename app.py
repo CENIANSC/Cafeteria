@@ -8,153 +8,159 @@ st.set_page_config(
     layout="wide"
 )
 
-# -----------------------------
-# Carrito persistente
-# -----------------------------
-if "carrito" not in st.session_state:
-    st.session_state.carrito = []
+st.title("🍽️ Tótem de Autoservicio")
 
-# -----------------------------
-# Menú
-# -----------------------------
+# ======================================
+# MENÚ
+# ======================================
+
 menu = {
     "🥪 Tortas": [
-        {"nombre": "Torta Cubana", "precio": 60},
-        {"nombre": "Torta Jamón", "precio": 40},
-        {"nombre": "Torta Hawaiana", "precio": 60},
-        {"nombre": "Torta Milanesa", "precio": 50}
+        {"nombre": "Torta Cubana", "precio": 95},
+        {"nombre": "Torta Jamón", "precio": 65},
+        {"nombre": "Torta Hawaiana", "precio": 85},
+        {"nombre": "Torta Especial", "precio": 110},
+        {"nombre": "Torta Milanesa", "precio": 95},
+        {"nombre": "Torta Pastor", "precio": 90},
     ],
 
     "🫓 Quesadillas": [
-        {"nombre": "Quesadilla Dorada", "precio": 25},
-        {"nombre": "Quesadilla Comal", "precio": 25},
-        {"nombre": "Quesadilla Harina", "precio": 22}
+        {"nombre": "Quesadilla Queso", "precio": 35},
+        {"nombre": "Quesadilla Chorizo", "precio": 45},
+        {"nombre": "Quesadilla Champiñones", "precio": 40},
+        {"nombre": "Quesadilla Mixta", "precio": 55},
+        {"nombre": "Quesadilla Pastor", "precio": 50},
     ],
 
     "🥤 Bebidas": [
-        {"nombre": "Coca Cola", "precio": 24},
-        {"nombre": "Agua Natural", "precio": 15},
-        {"nombre": "Agua Mineral", "precio": 25},
-        {"nombre": "Jugo", "precio": 22}
+        {"nombre": "Coca Cola", "precio": 25},
+        {"nombre": "Agua Natural", "precio": 18},
+        {"nombre": "Agua Mineral", "precio": 22},
+        {"nombre": "Jugo", "precio": 30},
+        {"nombre": "Café", "precio": 28},
     ],
 
     "⭐ Especiales": [
-        {"nombre": "Enchiladas suizas", "precio": 45},
-        {"nombre": "Chilaquiles con pollo", "precio": 55}
+        {"nombre": "Combo Familiar", "precio": 280},
+        {"nombre": "Paquete Ejecutivo", "precio": 145},
+        {"nombre": "Promoción del Día", "precio": 120},
     ]
 }
 
-st.title("🍽️ Cafetería UPPE")
+# ======================================
+# INTERFAZ POR PESTAÑAS
+# ======================================
 
-# -----------------------------
-# Pestañas
-# -----------------------------
 tabs = st.tabs(list(menu.keys()))
 
 for tab, (categoria, productos) in zip(tabs, menu.items()):
 
     with tab:
 
-        st.subheader(categoria)
+        for fila in range(0, len(productos), 3):
 
-        for producto in productos:
+            cols = st.columns(3)
 
-            st.markdown(f"### {producto['nombre']}")
-            st.write(f"Precio: **${producto['precio']}**")
+            for col_idx in range(3):
 
-            cantidad = st.number_input(
-                "Cantidad",
-                min_value=1,
-                value=1,
-                step=1,
-                key=f"cantidad_{producto['nombre']}"
-            )
+                indice = fila + col_idx
 
-            st.write("Personalización")
+                if indice < len(productos):
 
-            col1, col2, col3 = st.columns(3)
+                    producto = productos[indice]
 
-            with col1:
-                sin_chile = st.checkbox(
-                    "Sin chile",
-                    key=f"chile_{producto['nombre']}"
-                )
+                    with cols[col_idx]:
 
-            with col2:
-                sin_jitomate = st.checkbox(
-                    "Sin jitomate",
-                    key=f"jitomate_{producto['nombre']}"
-                )
+                        st.markdown(
+                            f"""
+                            ### {producto['nombre']}
+                            **${producto['precio']}**
+                            """
+                        )
 
-            with col3:
-                extra_queso = st.checkbox(
-                    "Extra queso",
-                    key=f"queso_{producto['nombre']}"
-                )
+                        st.number_input(
+                            "Cantidad",
+                            min_value=0,
+                            value=0,
+                            step=1,
+                            key=f"cant_{producto['nombre']}"
+                        )
 
-            if st.button(
-                f"Agregar {producto['nombre']}",
-                key=f"agregar_{producto['nombre']}"
-            ):
+# ======================================
+# CARRITO AUTOMÁTICO
+# ======================================
 
-                observaciones = []
+carrito = []
 
-                if sin_chile:
-                    observaciones.append("Sin chile")
+for categoria, productos in menu.items():
 
-                if sin_jitomate:
-                    observaciones.append("Sin jitomate")
+    for producto in productos:
 
-                if extra_queso:
-                    observaciones.append("Extra queso")
+        cantidad = st.session_state.get(
+            f"cant_{producto['nombre']}",
+            0
+        )
 
-                st.session_state.carrito.append({
-                    "producto": producto["nombre"],
-                    "cantidad": cantidad,
-                    "precio": producto["precio"],
-                    "observaciones": observaciones
-                })
+        if cantidad > 0:
 
-                st.success(
-                    f"{producto['nombre']} agregado al carrito."
-                )
+            carrito.append({
+                "producto": producto["nombre"],
+                "cantidad": cantidad,
+                "precio": producto["precio"]
+            })
 
-# -----------------------------
-# Sidebar
-# -----------------------------
+# ======================================
+# SIDEBAR
+# ======================================
+
 st.sidebar.title("🛒 Mi Pedido")
 
 total = 0
 
-if len(st.session_state.carrito) == 0:
-    st.sidebar.write("El carrito está vacío.")
+if len(carrito) == 0:
+
+    st.sidebar.write("No hay productos seleccionados.")
 
 else:
 
-    for idx, item in enumerate(st.session_state.carrito):
+    for i, item in enumerate(carrito):
 
         subtotal = item["cantidad"] * item["precio"]
         total += subtotal
 
-        st.sidebar.write(
-            f"**{item['cantidad']} x {item['producto']}**"
+        st.sidebar.markdown(
+            f"### {item['cantidad']} x {item['producto']}"
         )
 
-        st.sidebar.write(
-            f"${subtotal}"
+        st.sidebar.write(f"${subtotal}")
+
+        st.sidebar.write("Personalización")
+
+        sin_chile = st.sidebar.checkbox(
+            "Sin chile",
+            key=f"sin_chile_{i}"
         )
 
-        if len(item["observaciones"]) > 0:
-            st.sidebar.caption(
-                ", ".join(item["observaciones"])
-            )
+        sin_jitomate = st.sidebar.checkbox(
+            "Sin jitomate",
+            key=f"sin_jitomate_{i}"
+        )
 
-        if st.sidebar.button(
-            "Eliminar",
-            key=f"eliminar_{idx}"
-        ):
-            st.session_state.carrito.pop(idx)
-            st.rerun()
+        extra_queso = st.sidebar.checkbox(
+            "Extra queso",
+            key=f"extra_queso_{i}"
+        )
+
+        item["observaciones"] = []
+
+        if sin_chile:
+            item["observaciones"].append("Sin chile")
+
+        if sin_jitomate:
+            item["observaciones"].append("Sin jitomate")
+
+        if extra_queso:
+            item["observaciones"].append("Extra queso")
 
         st.sidebar.divider()
 
@@ -163,14 +169,16 @@ else:
         f"${total}"
     )
 
-# -----------------------------
-# Generar comanda
-# -----------------------------
+# ======================================
+# GENERAR COMANDA
+# ======================================
+
 if st.sidebar.button("🧾 Confirmar Pedido"):
 
-    if len(st.session_state.carrito) == 0:
+    if len(carrito) == 0:
+
         st.sidebar.warning(
-            "No hay productos en el carrito."
+            "Seleccione al menos un producto."
         )
 
     else:
@@ -185,7 +193,8 @@ if st.sidebar.button("🧾 Confirmar Pedido"):
             0,
             10,
             "COMANDA",
-            ln=True,
+            new_x="LMARGIN",
+            new_y="NEXT",
             align="C"
         )
 
@@ -194,32 +203,35 @@ if st.sidebar.button("🧾 Confirmar Pedido"):
             0,
             8,
             fecha.strftime("%d/%m/%Y %H:%M"),
-            ln=True,
+            new_x="LMARGIN",
+            new_y="NEXT",
             align="C"
         )
 
-        pdf.ln(10)
+        pdf.ln(5)
 
         pdf.set_font("Arial", "", 12)
 
-        for item in st.session_state.carrito:
+        for item in carrito:
 
             pdf.cell(
                 0,
                 8,
                 f"{item['cantidad']} x {item['producto']}",
-                ln=True
+                new_x="LMARGIN",
+                new_y="NEXT"
             )
 
-            if len(item["observaciones"]) > 0:
+            for obs in item["observaciones"]:
 
                 pdf.set_font("Arial", "I", 10)
 
                 pdf.cell(
                     0,
                     6,
-                    "   " + ", ".join(item["observaciones"]),
-                    ln=True
+                    f"   - {obs}",
+                    new_x="LMARGIN",
+                    new_y="NEXT"
                 )
 
                 pdf.set_font("Arial", "", 12)
@@ -227,38 +239,49 @@ if st.sidebar.button("🧾 Confirmar Pedido"):
         pdf.ln(5)
 
         pdf.set_font("Arial", "B", 12)
+
         pdf.cell(
             0,
             10,
             f"TOTAL: ${total}",
-            ln=True
+            new_x="LMARGIN",
+            new_y="NEXT"
         )
 
-        pdf.ln(10)
+        pdf.ln(5)
 
         pdf.set_font("Arial", "I", 10)
+
         pdf.cell(
             0,
             8,
             "Gracias por su preferencia",
-            ln=True,
+            new_x="LMARGIN",
+            new_y="NEXT",
             align="C"
         )
 
         pdf_bytes = bytes(pdf.output())
 
         st.sidebar.download_button(
-            "📄 Descargar Comanda",
-            pdf_bytes,
+            label="📄 Descargar Comanda",
+            data=pdf_bytes,
             file_name=f"comanda_{fecha.strftime('%Y%m%d_%H%M%S')}.pdf",
             mime="application/pdf"
         )
 
-# -----------------------------
-# Vaciar carrito
-# -----------------------------
-if len(st.session_state.carrito) > 0:
+# ======================================
+# LIMPIAR PEDIDO
+# ======================================
 
-    if st.sidebar.button("🗑️ Vaciar carrito"):
-        st.session_state.carrito = []
-        st.rerun()
+if st.sidebar.button("🗑️ Vaciar Pedido"):
+
+    for categoria, productos in menu.items():
+
+        for producto in productos:
+
+            st.session_state[
+                f"cant_{producto['nombre']}"
+            ] = 0
+
+    st.rerun()
