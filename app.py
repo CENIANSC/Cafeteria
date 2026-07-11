@@ -417,31 +417,11 @@ if confirmar:
         # LIMPIAR PANTALLA
         # =====================================
 
-        claves_eliminar = []
-
-        for clave in st.session_state.keys():
-
-            if (
-                clave.startswith("cant_")
-                or clave.startswith("sin_chile_")
-                or clave.startswith("sin_jitomate_")
-                or clave.startswith("extra_queso_")
-            ):
-
-                claves_eliminar.append(
-                    clave
-                )
-
-        for clave in claves_eliminar:
-            del st.session_state[clave]
-
         # eliminar qr temporal
         if os.path.exists(qr_path):
-            os.remove(qr_path)
+           os.remove(qr_path)
 
-        st.success(
-            f"Pedido #{numero_pedido} registrado correctamente."
+        st.sidebar.info(
+           "Descargue el PDF y posteriormente presione 'Vaciar'."
         )
-
-        st.rerun()
 
