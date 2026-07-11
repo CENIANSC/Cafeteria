@@ -399,9 +399,7 @@ if confirmar:
             align="C"
         )
 
-        pdf_bytes = pdf.output(
-            dest="S"
-        ).encode("latin1")
+        pdf_bytes = bytes(pdf.output(dest="S"))
 
         nombre_pdf = (
             f"pedido_{numero_pedido}.pdf"
