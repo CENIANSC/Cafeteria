@@ -445,29 +445,3 @@ if confirmar:
 
         st.rerun()
 
-# ======================================
-# LIMPIAR PEDIDO
-# ======================================
-
-if vaciar:
-
-    claves_eliminar = []
-
-    for clave in st.session_state.keys():
-
-        if clave.startswith("cant_"):
-            claves_eliminar.append(clave)
-
-        if clave.startswith("sin_chile_"):
-            claves_eliminar.append(clave)
-
-        if clave.startswith("sin_jitomate_"):
-            claves_eliminar.append(clave)
-
-        if clave.startswith("extra_queso_"):
-            claves_eliminar.append(clave)
-
-    for clave in claves_eliminar:
-        del st.session_state[clave]
-
-    st.rerun()
