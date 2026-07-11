@@ -180,7 +180,7 @@ else:
                     key=f"sin_jitomate_{i}_{unidad}"
                  )
 
-                extra_queso = st.checkbox(
+                 extra_queso = st.checkbox(
                    "Extra queso",
                     key=f"extra_queso_{i}_{unidad}"
                  )
