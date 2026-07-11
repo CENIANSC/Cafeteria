@@ -4,3 +4,4 @@ fpdf
 supabase
 Pillow
 fpdf2
+qrcode[pil]
