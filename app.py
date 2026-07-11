@@ -401,15 +401,16 @@ if confirmar:
 
         pdf_bytes = bytes(pdf.output(dest="S"))
 
-        nombre_pdf = (
-            f"pedido_{numero_pedido}.pdf"
+        st.sidebar.success(
+        f"Pedido #{numero_pedido} generado correctamente."
         )
 
         st.sidebar.download_button(
-            label="📄 Descargar Pedido",
-            data=pdf_bytes,
-            file_name=nombre_pdf,
-            mime="application/pdf"
+        label=f"📄 Descargar Pedido #{numero_pedido}",
+        data=pdf_bytes,
+        file_name=f"pedido_{numero_pedido}.pdf",
+        mime="application/pdf",
+        use_container_width=True
         )
 
         # =====================================
