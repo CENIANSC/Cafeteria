@@ -1,3 +1,9 @@
+pip install qrcode[pil]
+
+import os
+import json
+import qrcode
+
 import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
@@ -202,7 +208,7 @@ else:
     )
 
 # ======================================
-# GENERAR COMANDA
+# GENERAR PEDIDO
 # ======================================
 
 if confirmar:
@@ -215,22 +221,82 @@ if confirmar:
 
     else:
 
+        # =====================================
+        # GENERAR NUMERO CONSECUTIVO DIARIO
+        # =====================================
+
         fecha = datetime.now()
+        fecha_actual = fecha.strftime("%Y-%m-%d")
+
+        archivo_contador = "contador_pedidos.json"
+
+        if os.path.exists(archivo_contador):
+
+            with open(
+                archivo_contador,
+                "r",
+                encoding="utf-8"
+            ) as f:
+
+                datos = json.load(f)
+
+            if datos["fecha"] == fecha_actual:
+                consecutivo = datos["contador"] + 1
+            else:
+                consecutivo = 1
+
+        else:
+
+            consecutivo = 1
+
+        with open(
+            archivo_contador,
+            "w",
+            encoding="utf-8"
+        ) as f:
+
+            json.dump(
+                {
+                    "fecha": fecha_actual,
+                    "contador": consecutivo
+                },
+                f
+            )
+
+        numero_pedido = f"{consecutivo:03d}"
+
+        # =====================================
+        # GENERAR QR
+        # =====================================
+
+        qr = qrcode.make(
+            f"PEDIDO-{numero_pedido}"
+        )
+
+        qr_path = f"qr_{numero_pedido}.png"
+
+        qr.save(qr_path)
+
+        # =====================================
+        # CREAR PDF
+        # =====================================
 
         pdf = FPDF()
         pdf.add_page()
 
-        pdf.set_font("Arial", "B", 16)
+        pdf.set_font("Arial", "B", 18)
+
         pdf.cell(
             0,
             10,
-            "COMANDA",
+            f"PEDIDO #{numero_pedido}",
             new_x="LMARGIN",
             new_y="NEXT",
             align="C"
         )
 
         pdf.set_font("Arial", "", 10)
+
         pdf.cell(
             0,
             8,
@@ -256,7 +322,11 @@ if confirmar:
 
             for obs in item["observaciones"]:
 
-                pdf.set_font("Arial", "I", 10)
+                pdf.set_font(
+                    "Arial",
+                    "I",
+                    10
+                )
 
                 pdf.cell(
                     0,
@@ -266,41 +336,117 @@ if confirmar:
                     new_y="NEXT"
                 )
 
-                pdf.set_font("Arial", "", 12)
+                pdf.set_font(
+                    "Arial",
+                    "",
+                    12
+                )
 
         pdf.ln(5)
 
-        pdf.set_font("Arial", "B", 12)
+        pdf.set_font(
+            "Arial",
+            "B",
+            14
+        )
 
         pdf.cell(
             0,
             10,
             f"TOTAL: ${total}",
             new_x="LMARGIN",
-            new_y="NEXT"
+            new_y="NEXT",
+            align="C"
         )
 
-        pdf.ln(5)
+        pdf.ln(4)
 
-        pdf.set_font("Arial", "I", 10)
+        pdf.set_font(
+            "Arial",
+            "B",
+            12
+        )
 
         pdf.cell(
             0,
-            8,
-            "Gracias por su preferencia",
+            10,
+            "REALIZAR PAGO EN CAJA",
             new_x="LMARGIN",
             new_y="NEXT",
             align="C"
         )
 
-        pdf_bytes = bytes(pdf.output())
+        pdf.ln(5)
+
+        pdf.image(
+            qr_path,
+            x=80,
+            w=50
+        )
+
+        pdf.ln(55)
+
+        pdf.set_font(
+            "Arial",
+            "",
+            10
+        )
+
+        pdf.cell(
+            0,
+            8,
+            f"Codigo QR del pedido #{numero_pedido}",
+            new_x="LMARGIN",
+            new_y="NEXT",
+            align="C"
+        )
+
+        pdf_bytes = pdf.output(
+            dest="S"
+        ).encode("latin1")
+
+        nombre_pdf = (
+            f"pedido_{numero_pedido}.pdf"
+        )
 
         st.sidebar.download_button(
-            label="📄 Descargar Comanda",
+            label="📄 Descargar Pedido",
             data=pdf_bytes,
-            file_name=f"comanda_{fecha.strftime('%Y%m%d_%H%M%S')}.pdf",
+            file_name=nombre_pdf,
             mime="application/pdf"
         )
+
+        # =====================================
+        # LIMPIAR PANTALLA
+        # =====================================
+
+        claves_eliminar = []
+
+        for clave in st.session_state.keys():
+
+            if (
+                clave.startswith("cant_")
+                or clave.startswith("sin_chile_")
+                or clave.startswith("sin_jitomate_")
+                or clave.startswith("extra_queso_")
+            ):
+
+                claves_eliminar.append(
+                    clave
+                )
+
+        for clave in claves_eliminar:
+            del st.session_state[clave]
+
+        # eliminar qr temporal
+        if os.path.exists(qr_path):
+            os.remove(qr_path)
+
+        st.success(
+            f"Pedido #{numero_pedido} registrado correctamente."
+        )
+
+        st.rerun()
 
 # ======================================
 # LIMPIAR PEDIDO
