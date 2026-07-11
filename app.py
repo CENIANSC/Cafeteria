@@ -198,11 +198,11 @@ else:
                  if extra_queso:
                      observaciones_unidad.append(
                      "Extra queso"
-                  )
+                 )
 
-                  item["observaciones"].append(
-                  observaciones_unidad
-                  )
+                 item["observaciones"].append(
+                 observaciones_unidad
+                 )
 
         st.sidebar.divider()
 
