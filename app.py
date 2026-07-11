@@ -204,16 +204,12 @@ else:
                   observaciones_unidad
                   )
 
-  
-
-
         st.sidebar.divider()
 
-
-    st.sidebar.metric(
-        "TOTAL",
-        f"${total}"
-    )
+        st.sidebar.metric(
+           "TOTAL",
+           f"${total}"
+        )
 
 # ======================================
 # GENERAR PEDIDO
