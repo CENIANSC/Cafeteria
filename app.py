@@ -157,44 +157,54 @@ else:
 
 
         # -------------------------------
-        # Personalización desplegable
+        # Personalización por unidad
         # -------------------------------
 
-        with st.sidebar.expander(
-            "⚙️ Personalización"
-        ):
+        item["observaciones"] = []
 
-            sin_chile = st.checkbox(
-                "Sin chile",
-                key=f"sin_chile_{i}"
-            )
+        for unidad in range(item["cantidad"]):
 
-            sin_jitomate = st.checkbox(
-                "Sin jitomate",
-                key=f"sin_jitomate_{i}"
-            )
+             with st.sidebar.expander(
+                 f"⚙️ {item['producto']} #{unidad + 1}"
+             ):
 
-            extra_queso = st.checkbox(
-                "Extra queso",
-                key=f"extra_queso_{i}"
-            )
+                 observaciones_unidad = []
 
-            item["observaciones"] = []
+                 sin_chile = st.checkbox(
+                   "Sin chile",
+                    key=f"sin_chile_{i}_{unidad}"
+                 )
 
-            if sin_chile:
-                item["observaciones"].append(
+                 sin_jitomate = st.checkbox(
+                   "Sin jitomate",
+                    key=f"sin_jitomate_{i}_{unidad}"
+                 )
+
+                extra_queso = st.checkbox(
+                   "Extra queso",
+                    key=f"extra_queso_{i}_{unidad}"
+                 )
+
+                 if sin_chile:
+                    observaciones_unidad.append(
                     "Sin chile"
-                )
+                 )
 
-            if sin_jitomate:
-                item["observaciones"].append(
-                    "Sin jitomate"
-                )
+                 if sin_jitomate:
+                     observaciones_unidad.append(
+                     "Sin jitomate"
+                 )
 
-            if extra_queso:
-                item["observaciones"].append(
-                    "Extra queso"
-                )
+                 if extra_queso:
+                     observaciones_unidad.append(
+                     "Extra queso"
+                  )
+
+        item["observaciones"].append(
+            observaciones_unidad
+        )
+
+  
 
 
         st.sidebar.divider()
@@ -292,55 +302,6 @@ if confirmar:
             new_y="NEXT",
             align="C"
         )
-
-        pdf.set_font("Arial", "", 10)
-
-        pdf.cell(
-            0,
-            8,
-            fecha.strftime("%d/%m/%Y %H:%M"),
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="C"
-        )
-
-        pdf.ln(5)
-
-        pdf.set_font("Arial", "", 12)
-
-        for item in carrito:
-
-            pdf.cell(
-                0,
-                8,
-                f"{item['cantidad']} x {item['producto']}",
-                new_x="LMARGIN",
-                new_y="NEXT"
-            )
-
-            for obs in item["observaciones"]:
-
-                pdf.set_font(
-                    "Arial",
-                    "I",
-                    10
-                )
-
-                pdf.cell(
-                    0,
-                    6,
-                    f"   - {obs}",
-                    new_x="LMARGIN",
-                    new_y="NEXT"
-                )
-
-                pdf.set_font(
-                    "Arial",
-                    "",
-                    12
-                )
-
-        pdf.ln(5)
 
         pdf.set_font(
             "Arial",
