@@ -1,5 +1,3 @@
-pip install qrcode[pil]
-
 import os
 import json
 import qrcode
