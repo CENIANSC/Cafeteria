@@ -20,27 +20,27 @@ st.title("🍽️ Cafetería UPPE")
 
 menu = {
     "🥪 Tortas": [
-        {"nombre": "Torta Cubana", "precio": 95},
-        {"nombre": "Torta Jamón", "precio": 65},
-        {"nombre": "Torta Hawaiana", "precio": 85},
-        {"nombre": "Torta Especial", "precio": 110},
-        {"nombre": "Torta Milanesa", "precio": 95},
-        {"nombre": "Torta Pastor", "precio": 90},
+        {"nombre": "Torta Cubana", "precio": 60},
+        {"nombre": "Torta Jamón", "precio": 40},
+        {"nombre": "Torta Milanesa", "precio": 50},
+        {"nombre": "Torta Salchicha", "precio": 40},
+        {"nombre": "Torta Bistec", "precio": 40},
+        {"nombre": "Torta Pastor", "precio": 40},
     ],
 
     "🫓 Quesadillas": [
-        {"nombre": "Quesadilla Queso", "precio": 35},
-        {"nombre": "Quesadilla Chorizo", "precio": 45},
-        {"nombre": "Quesadilla Champiñones", "precio": 40},
-        {"nombre": "Quesadilla Mixta", "precio": 55},
-        {"nombre": "Quesadilla Pastor", "precio": 50},
+        {"nombre": "Quesadilla Harina", "precio": 22},
+        {"nombre": "Quesadilla Dorada", "precio": 25},
+        {"nombre": "Quesadilla Comal", "precio": 25},
+        {"nombre": "Gordita Comal", "precio": 15},
+        {"nombre": "Gordita Dorada", "precio": 15},
     ],
 
     "🥤 Bebidas": [
-        {"nombre": "Coca Cola", "precio": 25},
-        {"nombre": "Agua Natural", "precio": 18},
-        {"nombre": "Agua Mineral", "precio": 22},
-        {"nombre": "Jugo", "precio": 30},
+        {"nombre": "Coca Cola 600", "precio": 24},
+        {"nombre": "Agua Natural 1L", "precio": 15},
+        {"nombre": "Agua Mineral", "precio": 25},
+        {"nombre": "Boing", "precio": 22},
         {"nombre": "Café", "precio": 28},
     ],
 
