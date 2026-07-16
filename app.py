@@ -36,7 +36,7 @@ if "total" not in st.session_state:
     st.session_state["total"] = 0
 
 # ======================================
-# SECCIÓN DE PRODUCTOS EN PESTAÑAS
+# SECCIÓN DE PRODUCTOS EN PESTAÑAS Y COLUMNAS
 # ======================================
 st.title("Cafetería Universitaria")
 
@@ -45,14 +45,18 @@ tabs = st.tabs(list(menu.keys()))
 for i, categoria in enumerate(menu.keys()):
     with tabs[i]:
         st.header(categoria)
-        for producto in menu[categoria]:
-            key = f"cant_{producto['nombre']}"
-            st.number_input(
-                f"{producto['nombre']} (${producto['precio']})",
-                min_value=0,
-                step=1,
-                key=key
-            )
+        productos = menu[categoria]
+        # Crear columnas de 4 en 4
+        cols = st.columns(4)
+        for idx, producto in enumerate(productos):
+            with cols[idx % 4]:
+                key = f"cant_{producto['nombre']}"
+                st.number_input(
+                    f"{producto['nombre']} (${producto['precio']})",
+                    min_value=0,
+                    step=1,
+                    key=key
+                )
 
 # ======================================
 # CARRITO AUTOMÁTICO
@@ -93,17 +97,12 @@ generar_pdf = st.sidebar.button("Generar PDF")
 # Acción al presionar Vaciar
 # ======================================
 if vaciar:
-    # Vaciar carrito y total
     st.session_state["carrito"] = []
     st.session_state["total"] = 0
-
-    # Reiniciar todas las cantidades de los number_input
     for categoria, productos in menu.items():
         for producto in productos:
             key = f"cant_{producto['nombre']}"
             st.session_state[key] = 0   # fuerza a cero
-
-    # Reinicia la app
     st.experimental_rerun()
 
 st.sidebar.info("Carrito y cantidades reiniciados.")
@@ -127,14 +126,12 @@ if generar_pdf:
         pdf.ln(10)
         pdf.cell(200, 10, txt=f"TOTAL: ${st.session_state['total']}", ln=True)
 
-        # Generar QR con el contenido del carrito
         data = json.dumps(st.session_state["carrito"], ensure_ascii=False)
         qr = qrcode.make(data)
         qr_path = "qr_temp.png"
         qr.save(qr_path)
         pdf.image(qr_path, x=10, y=pdf.get_y() + 10, w=40)
 
-        # Guardar PDF
         pdf_path = "ticket.pdf"
         pdf.output(pdf_path)
 
@@ -144,4 +141,3 @@ if generar_pdf:
         os.remove(qr_path)
     else:
         st.warning("No hay productos en el carrito para generar PDF.")
-
