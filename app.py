@@ -127,9 +127,19 @@ with st.sidebar:
 
     # Acción al presionar Vaciar
     if vaciar:
-        st.session_state.clear()
-        st.experimental_rerun()
-            
+        # Vaciar carrito y total
+        st.session_state["carrito"] = []
+        st.session_state["total"] = 0
+        # Reiniciar todas las cantidades de los number_input
+        for categoria, productos in menu.items():
+            for producto in productos:
+                key = f"cant_{producto['nombre']}"
+                if key in st.session_state:
+                   st.session_state[key] = 0
+
+    # Forzar que la app se vuelva a renderizar con todo en cero
+    st.experimental_rerun()
+
 
     st.info("Carrito y cantidades reiniciados.")
 
