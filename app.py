@@ -125,7 +125,8 @@ if vaciar:
     st.session_state["total"] = 0
     for categoria, productos in menu.items():
         for producto in productos:
-            st.session_state[f"cant_{producto['nombre']}"] = 0
+            if f"cant_{producto['nombre']}" in st.session_state:
+                del st.session_state[f"cant_{producto['nombre']}"] 
             for j in range(10):  # máximo 10 unidades por producto
                 for extra in ["chile","jitomate","queso"]:
                     k = f"{producto['nombre']}_{j}_{extra}"
