@@ -137,7 +137,7 @@ with st.sidebar:
             for producto in productos:
                 key = f"cant_{producto['nombre']}"
                 if key in st.session_state:
-                   del st.session_state[key]=0   # elimina la clave
+                   st.session_state[key]=0   # elimina la clave
 
         # Reinicia la app como si refrescaras la página
         st.experimental_rerun()
