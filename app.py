@@ -127,10 +127,7 @@ with st.sidebar:
 
     # Acción al presionar Vaciar
     if vaciar:
-        # Reiniciar todo el estado
-        for key in list(st.session_state.keys()):
-            del st.session_state[key]
-
+        st.session_state.clear()
         st.experimental_rerun()
             
 
