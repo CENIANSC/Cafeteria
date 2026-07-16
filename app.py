@@ -97,18 +97,20 @@ st.session_state["total"] = total_tmp
 # ======================================
 st.sidebar.title("🛒 Carrito de compras")
 
+# Mostrar total arriba del carrito
+st.sidebar.subheader(f"Total: ${st.session_state['total']}")
+
 if st.session_state["carrito"]:
     for item in st.session_state["carrito"]:
         extras = [k.replace("sin_", "sin ") for k,v in item["personalizacion"].items() if v]
         extras_txt = ", ".join(extras) if extras else "normal"
         st.sidebar.write(f"{item['producto']} ({extras_txt}) - ${item['precio']}")
-    st.sidebar.write(f"**Total: ${st.session_state['total']}**")
 else:
     st.sidebar.info("Carrito vacío")
 
 # Botones
 vaciar = st.sidebar.button("Vaciar carrito")
-generar_pdf = st.sidebar.button("Generar PDF")
+confirmar = st.sidebar.button("Confirmar pedido")
 
 # ======================================
 # Acción al presionar Vaciar
@@ -129,9 +131,9 @@ if vaciar:
 st.sidebar.info("Carrito y cantidades reiniciados.")
 
 # ======================================
-# Acción al presionar Generar PDF
+# Acción al presionar Confirmar pedido
 # ======================================
-if generar_pdf:
+if confirmar:
     if st.session_state["carrito"]:
         pdf = FPDF()
         pdf.add_page()
@@ -163,4 +165,4 @@ if generar_pdf:
 
         os.remove(qr_path)
     else:
-        st.warning("No hay productos en el carrito para generar PDF.")
+        st.warning("No hay productos en el carrito para confirmar pedido.")
