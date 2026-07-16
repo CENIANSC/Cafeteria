@@ -13,8 +13,6 @@ if "carrito" not in st.session_state:
 if "total" not in st.session_state:
     st.session_state["total"] = 0
 
-
-
 st.set_page_config(
     page_title="Tótem Restaurante",
     page_icon="🍽️",
@@ -36,7 +34,6 @@ menu = {
         {"nombre": "Torta Bistec", "precio": 40},
         {"nombre": "Torta Pastor", "precio": 40},
     ],
-
     "🫓 Quesadillas": [
         {"nombre": "Quesadilla Harina", "precio": 22},
         {"nombre": "Quesadilla Dorada", "precio": 25},
@@ -44,7 +41,6 @@ menu = {
         {"nombre": "Gordita Comal", "precio": 15},
         {"nombre": "Gordita Dorada", "precio": 15},
     ],
-
     "🥤 Bebidas": [
         {"nombre": "Coca Cola 600", "precio": 24},
         {"nombre": "Agua Natural 1L", "precio": 15},
@@ -52,7 +48,6 @@ menu = {
         {"nombre": "Boing", "precio": 22},
         {"nombre": "Café", "precio": 28},
     ],
-
     "⭐ Especiales": [
         {"nombre": "Combo Familiar", "precio": 280},
         {"nombre": "Paquete Ejecutivo", "precio": 145},
@@ -67,30 +62,20 @@ menu = {
 tabs = st.tabs(list(menu.keys()))
 
 for tab, (categoria, productos) in zip(tabs, menu.items()):
-
     with tab:
-
         for fila in range(0, len(productos), 3):
-
             cols = st.columns(3)
-
             for col_idx in range(3):
-
                 indice = fila + col_idx
-
                 if indice < len(productos):
-
                     producto = productos[indice]
-
                     with cols[col_idx]:
-
                         st.markdown(
                             f"""
                             ### {producto['nombre']}
                             **${producto['precio']}**
                             """
                         )
-
                         st.number_input(
                             "Cantidad",
                             min_value=0,
@@ -100,23 +85,16 @@ for tab, (categoria, productos) in zip(tabs, menu.items()):
                         )
 
 # ======================================
-# CARRITO AUTOMÁTICO
+# CARRITO AUTOMÁTICO (usando session_state)
 # ======================================
 
-carrito = []
+st.session_state["carrito"] = []
 
 for categoria, productos in menu.items():
-
     for producto in productos:
-
-        cantidad = st.session_state.get(
-            f"cant_{producto['nombre']}",
-            0
-        )
-
+        cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
         if cantidad > 0:
-
-            carrito.append({
+            st.session_state["carrito"].append({
                 "producto": producto["nombre"],
                 "cantidad": cantidad,
                 "precio": producto["precio"]
@@ -125,7 +103,6 @@ for categoria, productos in menu.items():
 # -------------------------------
 # Sección lateral: Mi Pedido
 # -------------------------------
-# Si el carrito está vacío, el total debe ser 0
 
 with st.sidebar:
     # Calcular total dinámicamente
@@ -206,177 +183,3 @@ with st.sidebar:
                     item["observaciones"].append(observaciones_unidad)
 
             st.divider()
-
-
-
-# ======================================
-# GENERAR PEDIDO
-# ======================================
-
-if confirmar:
-
-    if len(carrito) == 0:
-
-        st.sidebar.warning(
-            "Seleccione al menos un producto."
-        )
-
-    else:
-
-        # =====================================
-        # GENERAR NUMERO CONSECUTIVO DIARIO
-        # =====================================
-
-        fecha = datetime.now()
-        fecha_actual = fecha.strftime("%Y-%m-%d")
-
-        archivo_contador = "contador_pedidos.json"
-
-        if os.path.exists(archivo_contador):
-
-            with open(
-                archivo_contador,
-                "r",
-                encoding="utf-8"
-            ) as f:
-
-                datos = json.load(f)
-
-            if datos["fecha"] == fecha_actual:
-                consecutivo = datos["contador"] + 1
-            else:
-                consecutivo = 1
-
-        else:
-
-            consecutivo = 1
-
-        with open(
-            archivo_contador,
-            "w",
-            encoding="utf-8"
-        ) as f:
-
-            json.dump(
-                {
-                    "fecha": fecha_actual,
-                    "contador": consecutivo
-                },
-                f
-            )
-
-        numero_pedido = f"{consecutivo:03d}"
-
-        # =====================================
-        # GENERAR QR
-        # =====================================
-
-        qr = qrcode.make(
-            f"PEDIDO-{numero_pedido}"
-        )
-
-        qr_path = f"qr_{numero_pedido}.png"
-
-        qr.save(qr_path)
-
-        # =====================================
-        # CREAR PDF
-        # =====================================
-
-        pdf = FPDF()
-        pdf.add_page()
-
-        pdf.set_font("Arial", "B", 18)
-
-        pdf.cell(
-            0,
-            10,
-            f"PEDIDO #{numero_pedido}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="C"
-        )
-
-        pdf.set_font(
-            "Arial",
-            "B",
-            14
-        )
-
-        pdf.cell(
-            0,
-            10,
-            f"TOTAL: ${total}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="C"
-        )
-
-        pdf.ln(4)
-
-        pdf.set_font(
-            "Arial",
-            "B",
-            12
-        )
-
-        pdf.cell(
-            0,
-            10,
-            "REALIZAR PAGO EN CAJA",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="C"
-        )
-
-        pdf.ln(5)
-
-        pdf.image(
-            qr_path,
-            x=80,
-            w=50
-        )
-
-        pdf.ln(55)
-
-        pdf.set_font(
-            "Arial",
-            "",
-            10
-        )
-
-        pdf.cell(
-            0,
-            8,
-            f"Codigo QR del pedido #{numero_pedido}",
-            new_x="LMARGIN",
-            new_y="NEXT",
-            align="C"
-        )
-
-        pdf_bytes = bytes(pdf.output(dest="S"))
-
-        st.sidebar.success(
-        f"Pedido #{numero_pedido} generado correctamente."
-        )
-
-        st.sidebar.download_button(
-        label=f"📄 Descargar Pedido #{numero_pedido}",
-        data=pdf_bytes,
-        file_name=f"pedido_{numero_pedido}.pdf",
-        mime="application/pdf",
-        use_container_width=True
-        )
-
-        # =====================================
-        # LIMPIAR PANTALLA
-        # =====================================
-
-        # eliminar qr temporal
-        if os.path.exists(qr_path):
-           os.remove(qr_path)
-
-        st.sidebar.info(
-           "Descargue el PDF y posteriormente presione 'Vaciar'."
-        )
-
