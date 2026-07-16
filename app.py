@@ -38,7 +38,7 @@ if "total" not in st.session_state:
 # ======================================
 # SECCIÓN DE PRODUCTOS EN PESTAÑAS Y COLUMNAS
 # ======================================
-st.title("Cafetería Universitaria")
+st.title("Cafetería UPPE")
 
 tabs = st.tabs(list(menu.keys()))
 
