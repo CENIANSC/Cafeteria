@@ -88,17 +88,18 @@ for tab, (categoria, productos) in zip(tabs, menu.items()):
 # CARRITO AUTOMÁTICO (usando session_state)
 # ======================================
 
-st.session_state["carrito"] = []
-
+carrito_tmp = []
 for categoria, productos in menu.items():
     for producto in productos:
         cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
         if cantidad > 0:
-            st.session_state["carrito"].append({
+            carrito_tmp.append({
                 "producto": producto["nombre"],
                 "cantidad": cantidad,
                 "precio": producto["precio"]
             })
+
+st.session_state["carrito"] = carrito_tmp
 
 # -------------------------------
 # Sección lateral: Mi Pedido
