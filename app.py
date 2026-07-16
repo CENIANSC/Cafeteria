@@ -100,6 +100,14 @@ st.sidebar.title("🛒 Carrito de compras")
 # Mostrar total arriba del carrito
 st.sidebar.subheader(f"Total: ${st.session_state['total']}")
 
+# Botones Confirmar y Vaciar juntos, justo después del total
+col1, col2 = st.sidebar.columns(2)
+with col1:
+    confirmar = st.button("Confirmar pedido")
+with col2:
+    vaciar = st.button("Vaciar carrito")
+
+# Lista de productos debajo de los botones
 if st.session_state["carrito"]:
     for item in st.session_state["carrito"]:
         extras = [k.replace("sin_", "sin ") for k,v in item["personalizacion"].items() if v]
