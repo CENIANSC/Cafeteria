@@ -126,17 +126,44 @@ with st.sidebar:
     with col2:
         st.subheader(f"${total:.2f}")
 
-    # Botones arriba
+    # Botones principales
     col1b, col2b = st.columns(2)
-    confirmar = col1b.button("🧾 Confirmar", use_container_width=True)
+    confirmar = col1b.button("✅ Hacer Pedido", use_container_width=True)
     vaciar = col2b.button("🗑️ Vaciar", use_container_width=True)
 
-    # Botón de generar pedido
-    generar = st.button("🎟️ Generar Ticket", use_container_width=True)
+    # Acción al presionar Vaciar
+    if vaciar:
+        carrito.clear()
+        st.info("Carrito vaciado.")
 
-    # Mensaje justo debajo de los botones
-    if generar:
+    # Acción al presionar Confirmar
+    if confirmar:
         st.success("✅ Pedido generado correctamente. Pasa a caja con el ticket a realizar el pago.")
+
+        # Generar PDF del ticket
+        pdf = FPDF()
+        pdf.add_page()
+        pdf.set_font("Arial", size=12)
+        pdf.cell(200, 10, txt="Ticket de Pedido", ln=True, align="C")
+        pdf.cell(200, 10, txt=f"Total: ${total:.2f}", ln=True, align="C")
+        pdf.ln(10)
+
+        for item in carrito:
+            subtotal = item["cantidad"] * item["precio"]
+            pdf.cell(200, 10, txt=f"{item['cantidad']} x {item['producto']} - ${subtotal:.2f}", ln=True)
+
+        # Guardar PDF temporal
+        pdf.output("ticket.pdf")
+
+        # Mostrar botón de descarga
+        with open("ticket.pdf", "rb") as f:
+            st.download_button(
+                label="📄 Descargar Ticket en PDF",
+                data=f,
+                file_name="ticket.pdf",
+                mime="application/pdf",
+                on_click=lambda: carrito.clear()  # vaciar carrito al descargar
+            )
 
     st.divider()
 
@@ -145,29 +172,20 @@ with st.sidebar:
     else:
         for i, item in enumerate(carrito):
             subtotal = item["cantidad"] * item["precio"]
-
             st.markdown(f"### {item['cantidad']} x {item['producto']}")
             st.write(f"${subtotal:.2f}")
 
-            # -------------------------------
-            # Personalización por unidad
-            # -------------------------------
+            # Observaciones por unidad
             item["observaciones"] = []
             for unidad in range(item["cantidad"]):
                 with st.expander(f"⚙️ {item['producto']} #{unidad + 1}"):
                     observaciones_unidad = []
-
-                    sin_chile = st.checkbox("Sin chile", key=f"sin_chile_{i}_{unidad}")
-                    sin_jitomate = st.checkbox("Sin jitomate", key=f"sin_jitomate_{i}_{unidad}")
-                    extra_queso = st.checkbox("Extra queso", key=f"extra_queso_{i}_{unidad}")
-
-                    if sin_chile:
+                    if st.checkbox("Sin chile", key=f"sin_chile_{i}_{unidad}"):
                         observaciones_unidad.append("Sin chile")
-                    if sin_jitomate:
+                    if st.checkbox("Sin jitomate", key=f"sin_jitomate_{i}_{unidad}"):
                         observaciones_unidad.append("Sin jitomate")
-                    if extra_queso:
+                    if st.checkbox("Extra queso", key=f"extra_queso_{i}_{unidad}"):
                         observaciones_unidad.append("Extra queso")
-
                     item["observaciones"].append(observaciones_unidad)
 
             st.divider()
