@@ -6,6 +6,15 @@ import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
 
+# Inicializar carrito en session_state
+if "carrito" not in st.session_state:
+    st.session_state["carrito"] = []
+
+if "total" not in st.session_state:
+    st.session_state["total"] = 0
+
+
+
 st.set_page_config(
     page_title="Tótem Restaurante",
     page_icon="🍽️",
@@ -118,19 +127,21 @@ for categoria, productos in menu.items():
 # -------------------------------
 # Si el carrito está vacío, el total debe ser 0
 
-
-if len(carrito) == 0:
-    total = 0
-else:
-    total = sum(item["cantidad"] * item["precio"] for item in carrito)
-
 with st.sidebar:
+    # Calcular total dinámicamente
+    if len(st.session_state["carrito"]) == 0:
+        st.session_state["total"] = 0
+    else:
+        st.session_state["total"] = sum(
+            item["cantidad"] * item["precio"] for item in st.session_state["carrito"]
+        )
+
     # Encabezado con costo a la derecha
     col1, col2 = st.columns([2,1])
     with col1:
         st.title("🛒 Mi Pedido")
     with col2:
-        st.subheader(f"${total:.2f}")
+        st.subheader(f"${st.session_state['total']:.2f}")
 
     # Botones principales
     col1b, col2b = st.columns(2)
@@ -139,23 +150,24 @@ with st.sidebar:
 
     # Acción al presionar Vaciar
     if vaciar:
-        carrito.clear()
-        total = 0
+        st.session_state["carrito"] = []
+        st.session_state["total"] = 0
         st.info("Carrito vaciado.")
 
     # Acción al presionar Confirmar
-    if confirmar and len(carrito) > 0:
+    if confirmar and len(st.session_state["carrito"]) > 0:
         st.success("✅ Pedido generado correctamente. Pasa a caja con el ticket a realizar el pago.")
 
         # Generar PDF del ticket
+        from fpdf import FPDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
         pdf.cell(200, 10, txt="Ticket de Pedido", ln=True, align="C")
-        pdf.cell(200, 10, txt=f"Total: ${total:.2f}", ln=True, align="C")
+        pdf.cell(200, 10, txt=f"Total: ${st.session_state['total']:.2f}", ln=True, align="C")
         pdf.ln(10)
 
-        for item in carrito:
+        for item in st.session_state["carrito"]:
             subtotal = item["cantidad"] * item["precio"]
             pdf.cell(200, 10, txt=f"{item['cantidad']} x {item['producto']} - ${subtotal:.2f}", ln=True)
 
@@ -168,15 +180,15 @@ with st.sidebar:
                 data=f,
                 file_name="ticket.pdf",
                 mime="application/pdf",
-                on_click=lambda: carrito.clear()
+                on_click=lambda: st.session_state.update({"carrito": [], "total": 0})
             )
 
     st.divider()
 
-    if len(carrito) == 0:
+    if len(st.session_state["carrito"]) == 0:
         st.write("No hay productos seleccionados.")
     else:
-        for i, item in enumerate(carrito):
+        for i, item in enumerate(st.session_state["carrito"]):
             subtotal = item["cantidad"] * item["precio"]
             st.markdown(f"### {item['cantidad']} x {item['producto']}")
             st.write(f"${subtotal:.2f}")
