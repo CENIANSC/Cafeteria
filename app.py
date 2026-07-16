@@ -7,22 +7,22 @@ from fpdf import FPDF
 from datetime import datetime
 
 # ======================================
-# MENÚ DE PRODUCTOS
+# MENÚ DE PRODUCTOS CON EMOJIS
 # ======================================
 menu = {
-    "Tortas": [
+    "🍔 Tortas": [
         {"nombre": "Torta Cubana", "precio": 50},
         {"nombre": "Torta de Jamón", "precio": 35},
         {"nombre": "Torta de Milanesa", "precio": 40},
         {"nombre": "Torta de Pierna", "precio": 45},
     ],
-    "Bebidas": [
+    "🥤 Bebidas": [
         {"nombre": "Coca Cola 600ml", "precio": 20},
         {"nombre": "Agua 500ml", "precio": 15},
         {"nombre": "Jugo de Naranja", "precio": 25},
         {"nombre": "Café Americano", "precio": 18},
     ],
-    "Snacks": [
+    "🍪 Snacks": [
         {"nombre": "Papas Fritas", "precio": 22},
         {"nombre": "Galletas", "precio": 12},
         {"nombre": "Barra de Granola", "precio": 15},
@@ -36,20 +36,23 @@ if "total" not in st.session_state:
     st.session_state["total"] = 0
 
 # ======================================
-# SECCIÓN DE PRODUCTOS
+# SECCIÓN DE PRODUCTOS EN PESTAÑAS
 # ======================================
 st.title("Cafetería Universitaria")
 
-for categoria, productos in menu.items():
-    st.header(categoria)
-    for producto in productos:
-        key = f"cant_{producto['nombre']}"
-        cantidad = st.number_input(
-            f"{producto['nombre']} (${producto['precio']})",
-            min_value=0,
-            step=1,
-            key=key
-        )
+tabs = st.tabs(list(menu.keys()))
+
+for i, categoria in enumerate(menu.keys()):
+    with tabs[i]:
+        st.header(categoria)
+        for producto in menu[categoria]:
+            key = f"cant_{producto['nombre']}"
+            st.number_input(
+                f"{producto['nombre']} (${producto['precio']})",
+                min_value=0,
+                step=1,
+                key=key
+            )
 
 # ======================================
 # CARRITO AUTOMÁTICO
@@ -71,9 +74,9 @@ st.session_state["carrito"] = carrito_tmp
 st.session_state["total"] = total_tmp
 
 # ======================================
-# BARRA LATERAL
+# BARRA LATERAL CON EMOJIS
 # ======================================
-st.sidebar.title("Carrito de compras")
+st.sidebar.title("🛒 Carrito de compras")
 
 if st.session_state["carrito"]:
     for item in st.session_state["carrito"]:
@@ -110,7 +113,6 @@ st.sidebar.info("Carrito y cantidades reiniciados.")
 # ======================================
 if generar_pdf:
     if st.session_state["carrito"]:
-        # Crear PDF con FPDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
@@ -142,3 +144,4 @@ if generar_pdf:
         os.remove(qr_path)
     else:
         st.warning("No hay productos en el carrito para generar PDF.")
+
