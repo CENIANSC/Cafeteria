@@ -94,11 +94,7 @@ for categoria, productos in menu.items():
     for producto in productos:
         cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
         if cantidad > 0:
-            st.session_state["carrito"].append({
-                "producto": producto["nombre"],
-                "cantidad": cantidad,
-                "precio": producto["precio"]
-            })
+            st.session_state["carrito"].append({...})
 
 # -------------------------------
 # Sección lateral: Mi Pedido
@@ -127,18 +123,8 @@ with st.sidebar:
 
     # Acción al presionar Vaciar
     if vaciar:
-        # Vaciar carrito y total
-        st.session_state["carrito"] = []
-        st.session_state["total"] = 0
-        # Reiniciar todas las cantidades de los number_input
-        for categoria, productos in menu.items():
-            for producto in productos:
-                key = f"cant_{producto['nombre']}"
-                if key in st.session_state:
-                   st.session_state[key] = 0
-
-        # Forzar que la app se vuelva a renderizar con todo en cero
-        st.experimental_rerun()
+        st.session_state.clar()
+        st.experimenta_rerun()
 
 
     st.info("Carrito y cantidades reiniciados.")
