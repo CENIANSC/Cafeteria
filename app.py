@@ -6,89 +6,56 @@ import streamlit as st
 from fpdf import FPDF
 from datetime import datetime
 
-# Inicializar carrito en session_state
-if "carrito" not in st.session_state:
-    st.session_state["carrito"] = []
-
-if "total" not in st.session_state:
-    st.session_state["total"] = 0
-
-st.set_page_config(
-    page_title="Tótem Restaurante",
-    page_icon="🍽️",
-    layout="wide"
-)
-
-st.title("🍽️ Cafetería UPPE")
-
 # ======================================
-# MENÚ
+# MENÚ DE PRODUCTOS
 # ======================================
-
 menu = {
-    "🥪 Tortas": [
-        {"nombre": "Torta Cubana", "precio": 60},
-        {"nombre": "Torta Jamón", "precio": 40},
-        {"nombre": "Torta Milanesa", "precio": 50},
-        {"nombre": "Torta Salchicha", "precio": 40},
-        {"nombre": "Torta Bistec", "precio": 40},
-        {"nombre": "Torta Pastor", "precio": 40},
+    "Tortas": [
+        {"nombre": "Torta Cubana", "precio": 50},
+        {"nombre": "Torta de Jamón", "precio": 35},
+        {"nombre": "Torta de Milanesa", "precio": 40},
+        {"nombre": "Torta de Pierna", "precio": 45},
     ],
-    "🫓 Quesadillas": [
-        {"nombre": "Quesadilla Harina", "precio": 22},
-        {"nombre": "Quesadilla Dorada", "precio": 25},
-        {"nombre": "Quesadilla Comal", "precio": 25},
-        {"nombre": "Gordita Comal", "precio": 15},
-        {"nombre": "Gordita Dorada", "precio": 15},
+    "Bebidas": [
+        {"nombre": "Coca Cola 600ml", "precio": 20},
+        {"nombre": "Agua 500ml", "precio": 15},
+        {"nombre": "Jugo de Naranja", "precio": 25},
+        {"nombre": "Café Americano", "precio": 18},
     ],
-    "🥤 Bebidas": [
-        {"nombre": "Coca Cola 600", "precio": 24},
-        {"nombre": "Agua Natural 1L", "precio": 15},
-        {"nombre": "Agua Mineral", "precio": 25},
-        {"nombre": "Boing", "precio": 22},
-        {"nombre": "Café", "precio": 28},
-    ],
-    "⭐ Especiales": [
-        {"nombre": "Combo Familiar", "precio": 280},
-        {"nombre": "Paquete Ejecutivo", "precio": 145},
-        {"nombre": "Promoción del Día", "precio": 120},
+    "Snacks": [
+        {"nombre": "Papas Fritas", "precio": 22},
+        {"nombre": "Galletas", "precio": 12},
+        {"nombre": "Barra de Granola", "precio": 15},
     ]
 }
 
-# ======================================
-# INTERFAZ POR PESTAÑAS
-# ======================================
-
-tabs = st.tabs(list(menu.keys()))
-
-for tab, (categoria, productos) in zip(tabs, menu.items()):
-    with tab:
-        for fila in range(0, len(productos), 3):
-            cols = st.columns(3)
-            for col_idx in range(3):
-                indice = fila + col_idx
-                if indice < len(productos):
-                    producto = productos[indice]
-                    with cols[col_idx]:
-                        st.markdown(
-                            f"""
-                            ### {producto['nombre']}
-                            **${producto['precio']}**
-                            """
-                        )
-                        st.number_input(
-                            "Cantidad",
-                            min_value=0,
-                            value=0,
-                            step=1,
-                            key=f"cant_{producto['nombre']}"
-                        )
+# Inicializar variables en session_state
+if "carrito" not in st.session_state:
+    st.session_state["carrito"] = []
+if "total" not in st.session_state:
+    st.session_state["total"] = 0
 
 # ======================================
-# CARRITO AUTOMÁTICO (usando session_state)
+# SECCIÓN DE PRODUCTOS
 # ======================================
+st.title("Cafetería Universitaria")
 
+for categoria, productos in menu.items():
+    st.header(categoria)
+    for producto in productos:
+        key = f"cant_{producto['nombre']}"
+        cantidad = st.number_input(
+            f"{producto['nombre']} (${producto['precio']})",
+            min_value=0,
+            step=1,
+            key=key
+        )
+
+# ======================================
+# CARRITO AUTOMÁTICO
+# ======================================
 carrito_tmp = []
+total_tmp = 0
 for categoria, productos in menu.items():
     for producto in productos:
         cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
@@ -98,102 +65,80 @@ for categoria, productos in menu.items():
                 "cantidad": cantidad,
                 "precio": producto["precio"]
             })
+            total_tmp += cantidad * producto["precio"]
 
 st.session_state["carrito"] = carrito_tmp
+st.session_state["total"] = total_tmp
 
-# -------------------------------
-# Sección lateral: Mi Pedido
-# -------------------------------
+# ======================================
+# BARRA LATERAL
+# ======================================
+st.sidebar.title("Carrito de compras")
 
-with st.sidebar:
-    # Calcular total dinámicamente
-    if len(st.session_state["carrito"]) == 0:
-        st.session_state["total"] = 0
-    else:
-        st.session_state["total"] = sum(
-            item["cantidad"] * item["precio"] for item in st.session_state["carrito"]
-        )
+if st.session_state["carrito"]:
+    for item in st.session_state["carrito"]:
+        st.sidebar.write(f"{item['cantidad']} x {item['producto']} (${item['precio']})")
+    st.sidebar.write(f"**Total: ${st.session_state['total']}**")
+else:
+    st.sidebar.info("Carrito vacío")
 
-    # Encabezado con costo a la derecha
-    col1, col2 = st.columns([2,1])
-    with col1:
-        st.title("🛒 Mi Pedido")
-    with col2:
-        st.subheader(f"${st.session_state['total']:.2f}")
+# Botones
+vaciar = st.sidebar.button("Vaciar carrito")
+generar_pdf = st.sidebar.button("Generar PDF")
 
-    # Botones principales
-    col1b, col2b = st.columns(2)
-    confirmar = col1b.button("✅ Hacer Pedido", use_container_width=True)
-    vaciar = col2b.button("🗑️ Vaciar", use_container_width=True)
+# ======================================
+# Acción al presionar Vaciar
+# ======================================
+if vaciar:
+    # Vaciar carrito y total
+    st.session_state["carrito"] = []
+    st.session_state["total"] = 0
 
-    # Acción al presionar Vaciar
-    if vaciar:
-        # Borra carrito y total
-        st.session_state["carrito"] = []
-        st.session_state["total"] = 0
+    # Reiniciar todas las cantidades de los number_input
+    for categoria, productos in menu.items():
+        for producto in productos:
+            key = f"cant_{producto['nombre']}"
+            st.session_state[key] = 0   # fuerza a cero
 
-        # Eliminar todas las claves de cantidades
-        for categoria, productos in menu.items():
-            for producto in productos:
-                key = f"cant_{producto['nombre']}"
-                if key in st.session_state:
-                   st.session_state[key]=0   # elimina la clave
+    # Reinicia la app
+    st.experimental_rerun()
 
-        # Reinicia la app como si refrescaras la página
-        st.experimental_rerun()
+st.sidebar.info("Carrito y cantidades reiniciados.")
 
-    st.info("Carrito y cantidades reiniciados.")
-
-
-    # Acción al presionar Confirmar
-    if confirmar and len(st.session_state["carrito"]) > 0:
-        st.success("✅ Pedido generado correctamente. Pasa a caja con el ticket a realizar el pago.")
-
-        # Generar PDF del ticket
+# ======================================
+# Acción al presionar Generar PDF
+# ======================================
+if generar_pdf:
+    if st.session_state["carrito"]:
+        # Crear PDF con FPDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
-        pdf.cell(200, 10, txt="Ticket de Pedido", ln=True, align="C")
-        pdf.cell(200, 10, txt=f"Total: ${st.session_state['total']:.2f}", ln=True, align="C")
+
+        pdf.cell(200, 10, txt="Ticket Cafetería Universitaria", ln=True, align="C")
+        pdf.cell(200, 10, txt=f"Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", ln=True, align="C")
         pdf.ln(10)
 
         for item in st.session_state["carrito"]:
-            subtotal = item["cantidad"] * item["precio"]
-            pdf.cell(200, 10, txt=f"{item['cantidad']} x {item['producto']} - ${subtotal:.2f}", ln=True)
+            pdf.cell(200, 10, txt=f"{item['cantidad']} x {item['producto']} - ${item['precio']}", ln=True)
 
-        pdf.output("ticket.pdf")
+        pdf.ln(10)
+        pdf.cell(200, 10, txt=f"TOTAL: ${st.session_state['total']}", ln=True)
 
-        # Botón de descarga que además vacía el carrito
-        with open("ticket.pdf", "rb") as f:
-            st.download_button(
-                label="📄 Descargar Ticket en PDF",
-                data=f,
-                file_name="ticket.pdf",
-                mime="application/pdf",
-                on_click=lambda: st.session_state.update({"carrito": [], "total": 0})
-            )
+        # Generar QR con el contenido del carrito
+        data = json.dumps(st.session_state["carrito"], ensure_ascii=False)
+        qr = qrcode.make(data)
+        qr_path = "qr_temp.png"
+        qr.save(qr_path)
+        pdf.image(qr_path, x=10, y=pdf.get_y() + 10, w=40)
 
-    st.divider()
+        # Guardar PDF
+        pdf_path = "ticket.pdf"
+        pdf.output(pdf_path)
 
-    if len(st.session_state["carrito"]) == 0:
-        st.write("No hay productos seleccionados.")
+        with open(pdf_path, "rb") as f:
+            st.sidebar.download_button("Descargar PDF", f, file_name="ticket.pdf")
+
+        os.remove(qr_path)
     else:
-        for i, item in enumerate(st.session_state["carrito"]):
-            subtotal = item["cantidad"] * item["precio"]
-            st.markdown(f"### {item['cantidad']} x {item['producto']}")
-            st.write(f"${subtotal:.2f}")
-
-            # Observaciones por unidad
-            item["observaciones"] = []
-            for unidad in range(item["cantidad"]):
-                with st.expander(f"⚙️ {item['producto']} #{unidad + 1}"):
-                    observaciones_unidad = []
-                    if st.checkbox("Sin chile", key=f"sin_chile_{i}_{unidad}"):
-                        observaciones_unidad.append("Sin chile")
-                    if st.checkbox("Sin jitomate", key=f"sin_jitomate_{i}_{unidad}"):
-                        observaciones_unidad.append("Sin jitomate")
-                    if st.checkbox("Extra queso", key=f"extra_queso_{i}_{unidad}"):
-                        observaciones_unidad.append("Extra queso")
-                    item["observaciones"].append(observaciones_unidad)
-
-            st.divider()
+        st.warning("No hay productos en el carrito para generar PDF.")
