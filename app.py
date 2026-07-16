@@ -113,15 +113,13 @@ for categoria, productos in menu.items():
                 "precio": producto["precio"]
             })
 
-
 # -------------------------------
 # Sección lateral: Mi Pedido
 # -------------------------------
-# Calcular total antes de mostrar
 total = sum(item["cantidad"] * item["precio"] for item in carrito)
 
-# Encabezado con costo a la derecha
 with st.sidebar:
+    # Encabezado con costo a la derecha
     col1, col2 = st.columns([2,1])
     with col1:
         st.title("🛒 Mi Pedido")
@@ -132,6 +130,13 @@ with st.sidebar:
     col1b, col2b = st.columns(2)
     confirmar = col1b.button("🧾 Confirmar", use_container_width=True)
     vaciar = col2b.button("🗑️ Vaciar", use_container_width=True)
+
+    # Botón de generar pedido
+    generar = st.button("🎟️ Generar Ticket", use_container_width=True)
+
+    # Mensaje justo debajo de los botones
+    if generar:
+        st.success("✅ Pedido generado correctamente. Pasa a caja con el ticket a realizar el pago.")
 
     st.divider()
 
@@ -152,15 +157,9 @@ with st.sidebar:
                 with st.expander(f"⚙️ {item['producto']} #{unidad + 1}"):
                     observaciones_unidad = []
 
-                    sin_chile = st.checkbox(
-                        "Sin chile", key=f"sin_chile_{i}_{unidad}"
-                    )
-                    sin_jitomate = st.checkbox(
-                        "Sin jitomate", key=f"sin_jitomate_{i}_{unidad}"
-                    )
-                    extra_queso = st.checkbox(
-                        "Extra queso", key=f"extra_queso_{i}_{unidad}"
-                    )
+                    sin_chile = st.checkbox("Sin chile", key=f"sin_chile_{i}_{unidad}")
+                    sin_jitomate = st.checkbox("Sin jitomate", key=f"sin_jitomate_{i}_{unidad}")
+                    extra_queso = st.checkbox("Extra queso", key=f"extra_queso_{i}_{unidad}")
 
                     if sin_chile:
                         observaciones_unidad.append("Sin chile")
@@ -172,6 +171,7 @@ with st.sidebar:
                     item["observaciones"].append(observaciones_unidad)
 
             st.divider()
+
 
 # ======================================
 # GENERAR PEDIDO
