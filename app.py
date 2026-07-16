@@ -134,6 +134,13 @@ with st.sidebar:
        # Reinicia la app como si refrescaras la página
        st.experimental_rerun()
 
+    # Eliminar todas las claves de cantidades
+    for categoria, productos in menu.items():
+        for producto in productos:
+            key = f"cant_{producto['nombre']}"
+            if key in st.session_state:
+                del st.session_state[key]
+
     st.info("Carrito y cantidades reiniciados.")
 
     # Acción al presionar Confirmar
