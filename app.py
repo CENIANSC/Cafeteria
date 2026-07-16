@@ -121,19 +121,8 @@ else:
 # Acción al presionar Vaciar
 # ======================================
 if vaciar:
-    st.session_state["carrito"] = []
-    st.session_state["total"] = 0
-    for categoria, productos in menu.items():
-        for producto in productos:
-            if f"cant_{producto['nombre']}" in st.session_state:
-                del st.session_state[f"cant_{producto['nombre']}"] 
-            for j in range(10):  # máximo 10 unidades por producto
-                for extra in ["chile","jitomate","queso"]:
-                    k = f"{producto['nombre']}_{j}_{extra}"
-                    if k in st.session_state:
-                        st.session_state[k] = False
+    st.session_state.clear()
     st.experimental_rerun()
-
 # ======================================
 # Acción al presionar Confirmar pedido
 # ======================================
