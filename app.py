@@ -94,7 +94,11 @@ for categoria, productos in menu.items():
     for producto in productos:
         cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
         if cantidad > 0:
-            st.session_state["carrito"].append({...})
+            st.session_state["carrito"].append({
+                "producto": producto["nombre"],
+                "cantidad": cantidad,
+                "precio": producto["precio"]
+            })
 
 # -------------------------------
 # Sección lateral: Mi Pedido
