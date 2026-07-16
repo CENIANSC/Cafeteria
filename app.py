@@ -116,9 +116,6 @@ if st.session_state["carrito"]:
 else:
     st.sidebar.info("Carrito vacío")
 
-# Botones
-vaciar = st.sidebar.button("Vaciar carrito")
-confirmar = st.sidebar.button("Confirmar pedido")
 
 # ======================================
 # Acción al presionar Vaciar
