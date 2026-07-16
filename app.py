@@ -113,103 +113,65 @@ for categoria, productos in menu.items():
                 "precio": producto["precio"]
             })
 
-# ======================================
-# SIDEBAR
-# ======================================
 
-st.sidebar.title("🛒 Mi Pedido")
+# -------------------------------
+# Sección lateral: Mi Pedido
+# -------------------------------
+# Calcular total antes de mostrar
+total = sum(item["cantidad"] * item["precio"] for item in carrito)
 
-# Botones arriba
-col1, col2 = st.sidebar.columns(2)
+# Encabezado con costo a la derecha
+with st.sidebar:
+    col1, col2 = st.columns([2,1])
+    with col1:
+        st.title("🛒 Mi Pedido")
+    with col2:
+        st.subheader(f"${total:.2f}")
 
-confirmar = col1.button(
-    "🧾 Confirmar",
-    use_container_width=True
-)
+    # Botones arriba
+    col1b, col2b = st.columns(2)
+    confirmar = col1b.button("🧾 Confirmar", use_container_width=True)
+    vaciar = col2b.button("🗑️ Vaciar", use_container_width=True)
 
-vaciar = col2.button(
-    "🗑️ Vaciar",
-    use_container_width=True
-)
+    st.divider()
 
-st.sidebar.divider()
+    if len(carrito) == 0:
+        st.write("No hay productos seleccionados.")
+    else:
+        for i, item in enumerate(carrito):
+            subtotal = item["cantidad"] * item["precio"]
 
-total = 0
+            st.markdown(f"### {item['cantidad']} x {item['producto']}")
+            st.write(f"${subtotal:.2f}")
 
-if len(carrito) == 0:
+            # -------------------------------
+            # Personalización por unidad
+            # -------------------------------
+            item["observaciones"] = []
+            for unidad in range(item["cantidad"]):
+                with st.expander(f"⚙️ {item['producto']} #{unidad + 1}"):
+                    observaciones_unidad = []
 
-    st.sidebar.write("No hay productos seleccionados.")
+                    sin_chile = st.checkbox(
+                        "Sin chile", key=f"sin_chile_{i}_{unidad}"
+                    )
+                    sin_jitomate = st.checkbox(
+                        "Sin jitomate", key=f"sin_jitomate_{i}_{unidad}"
+                    )
+                    extra_queso = st.checkbox(
+                        "Extra queso", key=f"extra_queso_{i}_{unidad}"
+                    )
 
-else:
+                    if sin_chile:
+                        observaciones_unidad.append("Sin chile")
+                    if sin_jitomate:
+                        observaciones_unidad.append("Sin jitomate")
+                    if extra_queso:
+                        observaciones_unidad.append("Extra queso")
 
-    for i, item in enumerate(carrito):
+                    item["observaciones"].append(observaciones_unidad)
 
-        subtotal = item["cantidad"] * item["precio"]
-        total += subtotal
-
-        st.sidebar.markdown(
-            f"### {item['cantidad']} x {item['producto']}"
-        )
-
-        st.sidebar.write(
-            f"${subtotal}"
-        )
-
-
-        # -------------------------------
-        # Personalización por unidad
-        # -------------------------------
-
-        item["observaciones"] = []
-
-        for unidad in range(item["cantidad"]):
-
-             with st.sidebar.expander(
-                 f"⚙️ {item['producto']} #{unidad + 1}"
-             ):
-
-                 observaciones_unidad = []
-
-                 sin_chile = st.checkbox(
-                   "Sin chile",
-                    key=f"sin_chile_{i}_{unidad}"
-                 )
-
-                 sin_jitomate = st.checkbox(
-                   "Sin jitomate",
-                    key=f"sin_jitomate_{i}_{unidad}"
-                 )
-
-                 extra_queso = st.checkbox(
-                   "Extra queso",
-                    key=f"extra_queso_{i}_{unidad}"
-                 )
-
-                 if sin_chile:
-                    observaciones_unidad.append(
-                    "Sin chile"
-                 )
-
-                 if sin_jitomate:
-                     observaciones_unidad.append(
-                     "Sin jitomate"
-                 )
-
-                 if extra_queso:
-                     observaciones_unidad.append(
-                     "Extra queso"
-                 )
-
-                 item["observaciones"].append(
-                 observaciones_unidad
-                 )
-
-        st.sidebar.divider()
-
-        st.sidebar.metric(
-           "TOTAL",
-           f"${total}"
-        )
+            st.divider()
 
 # ======================================
 # GENERAR PEDIDO
