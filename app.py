@@ -159,7 +159,6 @@ with st.sidebar:
         st.success("✅ Pedido generado correctamente. Pasa a caja con el ticket a realizar el pago.")
 
         # Generar PDF del ticket
-        from fpdf import FPDF
         pdf = FPDF()
         pdf.add_page()
         pdf.set_font("Arial", size=12)
