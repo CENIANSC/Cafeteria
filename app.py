@@ -133,8 +133,6 @@ if vaciar:
                         st.session_state[k] = False
     st.experimental_rerun()
 
-st.sidebar.info("Carrito y cantidades reiniciados.")
-
 # ======================================
 # Acción al presionar Confirmar pedido
 # ======================================
