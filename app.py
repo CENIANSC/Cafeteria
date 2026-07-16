@@ -127,10 +127,13 @@ with st.sidebar:
     vaciar = col2b.button("🗑️ Vaciar", use_container_width=True)
 
     # Acción al presionar Vaciar
+
     if vaciar:
-        st.session_state.clear()
-        st.experimental_rerun()
-        
+    # Borra TODO el estado (carrito, total, cantidades, etc.)
+    st.session_state.clear()
+    # Reinicia la app como si refrescaras la página
+    st.experimental_rerun()
+
     st.info("Carrito y cantidades reiniciados.")
 
     # Acción al presionar Confirmar
