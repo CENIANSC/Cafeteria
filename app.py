@@ -64,18 +64,33 @@ for i, categoria in enumerate(menu.keys()):
                     sin_jitomate = st.checkbox("Sin jitomate", key=f"{producto['nombre']}_{j}_jitomate")
                     sin_queso = st.checkbox("Sin queso", key=f"{producto['nombre']}_{j}_queso")
 
-                    item = {
-                        "producto": producto["nombre"],
-                        "precio": producto["precio"],
-                        "personalizacion": {
-                            "sin_chile": sin_chile,
-                            "sin_jitomate": sin_jitomate,
-                            "sin_queso": sin_queso
-                        }
-                    }
-                    # reconstruir carrito cada render
-                    if item not in st.session_state["carrito"]:
-                        st.session_state["carrito"].append(item)
+# ======================================
+# CARRITO AUTOMÁTICO CON PERSONALIZACIONES
+# ======================================
+carrito_tmp = []
+total_tmp = 0
+for categoria, productos in menu.items():
+    for producto in productos:
+        cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
+        for j in range(cantidad):
+            sin_chile = st.session_state.get(f"{producto['nombre']}_{j}_chile", False)
+            sin_jitomate = st.session_state.get(f"{producto['nombre']}_{j}_jitomate", False)
+            sin_queso = st.session_state.get(f"{producto['nombre']}_{j}_queso", False)
+
+            item = {
+                "producto": producto["nombre"],
+                "precio": producto["precio"],
+                "personalizacion": {
+                    "sin_chile": sin_chile,
+                    "sin_jitomate": sin_jitomate,
+                    "sin_queso": sin_queso
+                }
+            }
+            carrito_tmp.append(item)
+            total_tmp += producto["precio"]
+
+st.session_state["carrito"] = carrito_tmp
+st.session_state["total"] = total_tmp
 
 # ======================================
 # BARRA LATERAL CON EMOJIS
@@ -83,13 +98,10 @@ for i, categoria in enumerate(menu.keys()):
 st.sidebar.title("🛒 Carrito de compras")
 
 if st.session_state["carrito"]:
-    total = 0
     for item in st.session_state["carrito"]:
         extras = [k.replace("sin_", "sin ") for k,v in item["personalizacion"].items() if v]
         extras_txt = ", ".join(extras) if extras else "normal"
         st.sidebar.write(f"{item['producto']} ({extras_txt}) - ${item['precio']}")
-        total += item["precio"]
-    st.session_state["total"] = total
     st.sidebar.write(f"**Total: ${st.session_state['total']}**")
 else:
     st.sidebar.info("Carrito vacío")
@@ -106,9 +118,7 @@ if vaciar:
     st.session_state["total"] = 0
     for categoria, productos in menu.items():
         for producto in productos:
-            key = f"cant_{producto['nombre']}"
-            st.session_state[key] = 0
-            # limpiar personalizaciones
+            st.session_state[f"cant_{producto['nombre']}"] = 0
             for j in range(10):  # máximo 10 unidades por producto
                 for extra in ["chile","jitomate","queso"]:
                     k = f"{producto['nombre']}_{j}_{extra}"
