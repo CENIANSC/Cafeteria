@@ -121,7 +121,10 @@ else:
 # Acción al presionar Vaciar
 # ======================================
 if vaciar:
-    st.session_state.clear()
+    for key in list(st.session_state.keys()):
+        if key.startswith("cant_") or "_chile" in key or "_jitomate" in key or "_queso" in key \
+           or key in ["carrito", "total"]:
+            del st.session_state[key]
     st.experimental_rerun()
 # ======================================
 # Acción al presionar Confirmar pedido
