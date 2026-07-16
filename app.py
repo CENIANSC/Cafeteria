@@ -128,10 +128,9 @@ with st.sidebar:
 
     # Acción al presionar Vaciar
     if vaciar:
-        st.session_state.clar()
+        st.session_state.clear()
         st.experimenta_rerun()
-
-
+        
     st.info("Carrito y cantidades reiniciados.")
 
     # Acción al presionar Confirmar
