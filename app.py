@@ -116,7 +116,13 @@ for categoria, productos in menu.items():
 # -------------------------------
 # Sección lateral: Mi Pedido
 # -------------------------------
-total = sum(item["cantidad"] * item["precio"] for item in carrito)
+# Si el carrito está vacío, el total debe ser 0
+
+
+if len(carrito) == 0:
+    total = 0
+else:
+    total = sum(item["cantidad"] * item["precio"] for item in carrito)
 
 with st.sidebar:
     # Encabezado con costo a la derecha
@@ -134,10 +140,11 @@ with st.sidebar:
     # Acción al presionar Vaciar
     if vaciar:
         carrito.clear()
+        total = 0
         st.info("Carrito vaciado.")
 
     # Acción al presionar Confirmar
-    if confirmar:
+    if confirmar and len(carrito) > 0:
         st.success("✅ Pedido generado correctamente. Pasa a caja con el ticket a realizar el pago.")
 
         # Generar PDF del ticket
@@ -152,17 +159,16 @@ with st.sidebar:
             subtotal = item["cantidad"] * item["precio"]
             pdf.cell(200, 10, txt=f"{item['cantidad']} x {item['producto']} - ${subtotal:.2f}", ln=True)
 
-        # Guardar PDF temporal
         pdf.output("ticket.pdf")
 
-        # Mostrar botón de descarga
+        # Botón de descarga que además vacía el carrito
         with open("ticket.pdf", "rb") as f:
             st.download_button(
                 label="📄 Descargar Ticket en PDF",
                 data=f,
                 file_name="ticket.pdf",
                 mime="application/pdf",
-                on_click=lambda: carrito.clear()  # vaciar carrito al descargar
+                on_click=lambda: carrito.clear()
             )
 
     st.divider()
@@ -189,6 +195,7 @@ with st.sidebar:
                     item["observaciones"].append(observaciones_unidad)
 
             st.divider()
+
 
 
 # ======================================
