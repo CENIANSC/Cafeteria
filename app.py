@@ -129,10 +129,10 @@ with st.sidebar:
     # Acción al presionar Vaciar
 
     if vaciar:
-    # Borra TODO el estado (carrito, total, cantidades, etc.)
-    st.session_state.clear()
-    # Reinicia la app como si refrescaras la página
-    st.experimental_rerun()
+       # Borra TODO el estado (carrito, total, cantidades, etc.)
+       st.session_state.clear()
+       # Reinicia la app como si refrescaras la página
+       st.experimental_rerun()
 
     st.info("Carrito y cantidades reiniciados.")
 
