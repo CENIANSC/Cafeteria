@@ -137,8 +137,8 @@ with st.sidebar:
                 if key in st.session_state:
                    st.session_state[key] = 0
 
-    # Forzar que la app se vuelva a renderizar con todo en cero
-    st.experimental_rerun()
+        # Forzar que la app se vuelva a renderizar con todo en cero
+        st.experimental_rerun()
 
 
     st.info("Carrito y cantidades reiniciados.")
