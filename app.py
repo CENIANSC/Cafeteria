@@ -46,36 +46,36 @@ for i, categoria in enumerate(menu.keys()):
     with tabs[i]:
         st.header(categoria)
         productos = menu[categoria]
-        # Crear columnas de 4 en 4
         cols = st.columns(4)
         for idx, producto in enumerate(productos):
             with cols[idx % 4]:
-                key = f"cant_{producto['nombre']}"
-                st.number_input(
+                key_cant = f"cant_{producto['nombre']}"
+                cantidad = st.number_input(
                     f"{producto['nombre']} (${producto['precio']})",
                     min_value=0,
                     step=1,
-                    key=key
+                    key=key_cant
                 )
 
-# ======================================
-# CARRITO AUTOMÁTICO
-# ======================================
-carrito_tmp = []
-total_tmp = 0
-for categoria, productos in menu.items():
-    for producto in productos:
-        cantidad = st.session_state.get(f"cant_{producto['nombre']}", 0)
-        if cantidad > 0:
-            carrito_tmp.append({
-                "producto": producto["nombre"],
-                "cantidad": cantidad,
-                "precio": producto["precio"]
-            })
-            total_tmp += cantidad * producto["precio"]
+                # Personalización por cada unidad seleccionada
+                for j in range(cantidad):
+                    st.write(f"Personalización {j+1} de {producto['nombre']}")
+                    sin_chile = st.checkbox("Sin chile", key=f"{producto['nombre']}_{j}_chile")
+                    sin_jitomate = st.checkbox("Sin jitomate", key=f"{producto['nombre']}_{j}_jitomate")
+                    sin_queso = st.checkbox("Sin queso", key=f"{producto['nombre']}_{j}_queso")
 
-st.session_state["carrito"] = carrito_tmp
-st.session_state["total"] = total_tmp
+                    item = {
+                        "producto": producto["nombre"],
+                        "precio": producto["precio"],
+                        "personalizacion": {
+                            "sin_chile": sin_chile,
+                            "sin_jitomate": sin_jitomate,
+                            "sin_queso": sin_queso
+                        }
+                    }
+                    # reconstruir carrito cada render
+                    if item not in st.session_state["carrito"]:
+                        st.session_state["carrito"].append(item)
 
 # ======================================
 # BARRA LATERAL CON EMOJIS
@@ -83,8 +83,13 @@ st.session_state["total"] = total_tmp
 st.sidebar.title("🛒 Carrito de compras")
 
 if st.session_state["carrito"]:
+    total = 0
     for item in st.session_state["carrito"]:
-        st.sidebar.write(f"{item['cantidad']} x {item['producto']} (${item['precio']})")
+        extras = [k.replace("sin_", "sin ") for k,v in item["personalizacion"].items() if v]
+        extras_txt = ", ".join(extras) if extras else "normal"
+        st.sidebar.write(f"{item['producto']} ({extras_txt}) - ${item['precio']}")
+        total += item["precio"]
+    st.session_state["total"] = total
     st.sidebar.write(f"**Total: ${st.session_state['total']}**")
 else:
     st.sidebar.info("Carrito vacío")
@@ -102,7 +107,13 @@ if vaciar:
     for categoria, productos in menu.items():
         for producto in productos:
             key = f"cant_{producto['nombre']}"
-            st.session_state[key] = 0   # fuerza a cero
+            st.session_state[key] = 0
+            # limpiar personalizaciones
+            for j in range(10):  # máximo 10 unidades por producto
+                for extra in ["chile","jitomate","queso"]:
+                    k = f"{producto['nombre']}_{j}_{extra}"
+                    if k in st.session_state:
+                        st.session_state[k] = False
     st.experimental_rerun()
 
 st.sidebar.info("Carrito y cantidades reiniciados.")
@@ -116,12 +127,14 @@ if generar_pdf:
         pdf.add_page()
         pdf.set_font("Arial", size=12)
 
-        pdf.cell(200, 10, txt="Ticket Cafetería Universitaria", ln=True, align="C")
+        pdf.cell(200, 10, txt="Ticket Cafetería UPPE", ln=True, align="C")
         pdf.cell(200, 10, txt=f"Fecha: {datetime.now().strftime('%d/%m/%Y %H:%M:%S')}", ln=True, align="C")
         pdf.ln(10)
 
         for item in st.session_state["carrito"]:
-            pdf.cell(200, 10, txt=f"{item['cantidad']} x {item['producto']} - ${item['precio']}", ln=True)
+            extras = [k.replace("sin_", "sin ") for k,v in item["personalizacion"].items() if v]
+            extras_txt = ", ".join(extras) if extras else "normal"
+            pdf.cell(200, 10, txt=f"{item['producto']} ({extras_txt}) - ${item['precio']}", ln=True)
 
         pdf.ln(10)
         pdf.cell(200, 10, txt=f"TOTAL: ${st.session_state['total']}", ln=True)
